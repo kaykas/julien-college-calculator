@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Julien’s College Cost & Scholarship Calculator (2026–2027)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0B0F17;
+      --surface: #131B2E;
+      --surface-2: #1A2540;
+      --border: #26334D;
+      --text: #F8FAFC;
+      --muted: #94A3B8;
+      --accent: #3B82F6;
+      --accent-glow: rgba(59, 130, 246, 0.18);
+      --green: #10B981;
+      --green-bg: rgba(16, 185, 129, 0.14);
+      --amber: #F59E0B;
+      --amber-bg: rgba(245, 158, 11, 0.14);
+      --red: #EF4444;
+      --red-bg: rgba(239, 68, 68, 0.14);
+      --purple: #A855F7;
+      --purple-bg: rgba(168, 85, 247, 0.15);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, sans-serif;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: 80px;
+    }
+    .container {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    /* Header */
+    header.hero {
+      background: radial-gradient(circle at 80% 0%, rgba(25, 58, 147, 0.45), transparent 55%),
+                  linear-gradient(180deg, #111827 0%, #0B0F17 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 32px 0 28px;
+    }
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .badge-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .pill {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--accent-glow);
+      color: #60A5FA;
+      border: 1px solid rgba(96, 165, 250, 0.3);
+    }
+    .pill.purple {
+      background: var(--purple-bg);
+      color: #C084FC;
+      border-color: rgba(192, 132, 252, 0.3);
+    }
+    h1 {
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 14.5px;
+      max-width: 780px;
+    }
+    /* Summary KPI Bar */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+    }
+    .kpi-label {
+      font-size: 11.5px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .kpi-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .kpi-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    /* Controls Panel */
+    .controls-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      margin: 24px 0;
+      display: grid;
+      grid-template-columns: 1.3fr 1.2fr 1.1fr;
+      gap: 24px;
+      align-items: center;
+    }
+    .control-group label.group-title {
+      display: block;
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .btn-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      background: var(--bg);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .filter-btn:hover {
+      color: var(--text);
+      border-color: #475569;
+    }
+    .filter-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    /* Levers & Toggles */
+    .lever-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .toggle-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      cursor: pointer;
+    }
+    .toggle-item input {
+      accent-color: var(--accent);
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+    .slider-wrap {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 12px 14px;
+      border-radius: 10px;
+    }
+    .slider-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .slider-top span.val {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--green);
+      font-weight: 700;
+    }
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--green);
+      cursor: pointer;
+    }
+    /* Secondary Filter Bar */
+    .sub-filters {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    /* Cards Grid */
+    .schools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(390px, 1fr));
+      gap: 18px;
+    }
+    .school-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.15s, border-color 0.15s;
+      position: relative;
+    }
+    .school-card:hover {
+      border-color: #3B82F6;
+    }
+    .school-card.recommended {
+      border-top: 3px solid var(--purple);
+    }
+    .school-card.current-list {
+      border-top: 3px solid var(--accent);
+    }
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .school-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.25;
+    }
+    .school-loc {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .tier-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+    .tier-SAFETY { background: var(--green-bg); color: var(--green); }
+    .tier-MATCH { background: var(--accent-glow); color: #60A5FA; }
+    .tier-REACH { background: var(--amber-bg); color: var(--amber); }
+
+    /* Cost Math Box */
+    .math-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+    }
+    .math-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12.5px;
+      padding: 4px 0;
+      color: var(--muted);
+    }
+    .math-row.discount {
+      color: var(--green);
+      font-weight: 600;
+    }
+    .math-row.net-total {
+      border-top: 1px solid var(--border);
+      margin-top: 6px;
+      padding-top: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .budget-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-left: 6px;
+    }
+    .budget-ok { background: var(--green-bg); color: var(--green); }
+    .budget-stretch { background: var(--amber-bg); color: var(--amber); }
+    .budget-over { background: var(--red-bg); color: var(--red); }
+
+    .scholarship-info {
+      font-size: 12.5px;
+      color: #CBD5E1;
+      margin-bottom: 12px;
+      line-height: 1.45;
+    }
+    .scholarship-info strong {
+      color: #93C5FD;
+    }
+    .vibe-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: auto;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      justify-content: space-between;
+      align-items: center;
+    }
+    .tag-chip {
+      font-size: 11px;
+      background: var(--surface-2);
+      color: var(--muted);
+      padding: 3px 8px;
+      border-radius: 5px;
+    }
+    .star-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .star-btn.starred {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: var(--green);
+      color: var(--green);
+    }
+    @media (max-width: 960px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .controls-panel { grid-template-columns: 1fr; }
+      .schools-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="container">
+      <div class="hero-top">
+        <div>
+          <div class="badge-row">
+            <span class="pill">Common App Active List (14)</span>
+            <span class="pill purple">+ 8 Recommended High-Merit Fits</span>
+            <span class="pill" style="background:rgba(16,185,129,0.15); color:#34D399; border-color:rgba(52,211,153,0.3);">Clemson Excluded</span>
+          </div>
+          <h1>Julien’s College Cost & Scholarship Calculator</h1>
+          <p class="subtitle">Interactive total cost of attendance (COA), automatic academic merit, and Catholic/Vincentian/Jesuit leadership scholarship modeling across all 14 Common App schools + 8 strategic additions.</p>
+        </div>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Shortlist Selected</div>
+          <div class="kpi-val" id="kpi-count">14 Schools</div>
+          <div class="kpi-sub" id="kpi-tiers">2 Reach · 8 Match · 4 Safety</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Avg Annual Net Cost</div>
+          <div class="kpi-val" id="kpi-avg-net">$48,200/yr</div>
+          <div class="kpi-sub" id="kpi-avg-sticker">Down from $69,400 avg sticker</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Avg 4-Year Total Cost</div>
+          <div class="kpi-val" id="kpi-4yr-net">$192,800</div>
+          <div class="kpi-sub">Projected 4-year out-of-pocket</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Avg 4-Yr Scholarship Leverage</div>
+          <div class="kpi-val" style="color:var(--green);" id="kpi-4yr-saved">+$84,800</div>
+          <div class="kpi-sub">Merit + Leadership + WUE discounts</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="controls-panel">
+      <div class="control-group">
+        <label class="group-title">1. Source List View</label>
+        <div class="btn-group" id="source-filters">
+          <button class="filter-btn active" onclick="setSource('all', this)">All 22 Schools</button>
+          <button class="filter-btn" onclick="setSource('current', this)">Current Common App (14)</button>
+          <button class="filter-btn" onclick="setSource('recommended', this)">Recommended Adds (8)</button>
+          <button class="filter-btn" onclick="setSource('starred', this)">★ My Starred List</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="group-title">2. Julien’s Scholarship Levers</label>
+        <div class="lever-row">
+          <label class="toggle-item">
+            <span><strong>SVHS Chaplain + ASB + Mustang Founder</strong> (Catholic/Leadership Grants)</span>
+            <input type="checkbox" id="toggle-leadership" checked onchange="render()" />
+          </label>
+          <label class="toggle-item">
+            <span><strong>SAT Retake Boost (1350+)</strong> (Unlocks Top-Tier Merit Brackets)</span>
+            <input type="checkbox" id="toggle-sat" onchange="render()" />
+          </label>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="group-title">3. Target Annual Budget Ceiling</label>
+        <div class="slider-wrap">
+          <div class="slider-top">
+            <span>Target Max Net Price / Yr:</span>
+            <span class="val" id="budget-display">$50,000/yr</span>
+          </div>
+          <input type="range" id="budget-slider" min="28000" max="90000" step="2000" value="50000" oninput="render()" />
+          <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-top:4px;">
+            <span>$28k (WUE/In-State)</span>
+            <span>$50k (Mid-Net)</span>
+            <span>$90k (Full Pay)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="sub-filters">
+      <div class="btn-group" id="cat-filters">
+        <button class="filter-btn active" onclick="setCategory('all', this)">All Categories</button>
+        <button class="filter-btn" onclick="setCategory('catholic', this)">Catholic / Jesuit / Vincentian (9)</button>
+        <button class="filter-btn" onclick="setCategory('boston-ny', this)">Boston & NYC Hubs (7)</button>
+        <button class="filter-btn" onclick="setCategory('europe', this)">Europe / UK (3)</button>
+        <button class="filter-btn" onclick="setCategory('under45', this)">Net Under $45k/yr</button>
+      </div>
+
+      <div class="btn-group">
+        <span style="font-size:12px; color:var(--muted); align-self:center; margin-right:6px;">Sort by:</span>
+        <button class="filter-btn active" id="sort-net" onclick="setSort('net', this)">Lowest Net Cost</button>
+        <button class="filter-btn" id="sort-merit" onclick="setSort('merit', this)">Biggest Scholarship</button>
+        <button class="filter-btn" id="sort-name" onclick="setSort('name', this)">Name (A–Z)</button>
+      </div>
+    </div>
+
+    <section class="schools-grid" id="schools-container"></section>
+  </main>
+
+  <script>
+    const SCHOOLS = [
+      // CURRENT 14 COMMON APP SCHOOLS (Minus Clemson)
+      {
+        id: 'nau',
+        name: 'Northern Arizona University',
+        location: 'Flagstaff, AZ (7,000 ft Mountain Pines)',
+        source: 'current',
+        tier: 'SAFETY',
+        sticker: 39000,
+        baseMerit: 12500,
+        leadershipBonus: 0,
+        satBonus: 2000,
+        scholarships: 'WUE (Western Undergraduate Exchange) automatic CA resident tuition discount (~$12.5k/yr savings).',
+        tags: ['WUE Discount', 'Cool Mountain Climate', 'Public'],
+        cats: []
+      },
+      {
+        id: 'xavier',
+        name: 'Xavier University',
+        location: 'Cincinnati, OH',
+        source: 'current',
+        tier: 'SAFETY',
+        sticker: 67000,
+        baseMerit: 24000,
+        leadershipBonus: 3500,
+        satBonus: 2500,
+        scholarships: 'Dean’s/Buschmann Merit ($22k–$27k/yr) + St. Francis Xavier Service & Catholic HS Leadership Grant.',
+        tags: ['Jesuit', 'D1 Big East Hoops', 'Business'],
+        cats: ['catholic']
+      },
+      {
+        id: 'marquette',
+        name: 'Marquette University',
+        location: 'Milwaukee, WI',
+        source: 'current',
+        tier: 'MATCH',
+        sticker: 68000,
+        baseMerit: 22000,
+        leadershipBonus: 4000,
+        satBonus: 3000,
+        scholarships: 'Père Marquette Automatic Merit ($18k–$26k) + Catholic High School Scholarship ($2.5k–$5k/yr) + Magis Leadership.',
+        tags: ['Jesuit', 'Urban Lakefront', 'D1 Big East'],
+        cats: ['catholic']
+      },
+      {
+        id: 'glasgow',
+        name: 'University of Glasgow',
+        location: 'Glasgow, Scotland (UK)',
+        source: 'current',
+        tier: 'MATCH',
+        sticker: 49000,
+        baseMerit: 4000,
+        leadershipBonus: 0,
+        satBonus: 2500,
+        scholarships: 'World Top-100 Undergraduate Excellence Scholarship (£5k). Lower UK base tuition than US privates.',
+        tags: ['Europe / UK', 'Ancient Research Univ', 'Cool Climate'],
+        cats: ['europe']
+      },
+      {
+        id: 'setonhall',
+        name: 'Seton Hall University',
+        location: 'South Orange, NJ (30m Train to NYC)',
+        source: 'current',
+        tier: 'SAFETY',
+        sticker: 71000,
+        baseMerit: 24000,
+        leadershipBonus: 3500,
+        satBonus: 2500,
+        scholarships: 'University Merit Scholarship ($22k–$30k) + Catholic High School Grant + Buccino Leadership Institute.',
+        tags: ['Catholic', 'NYC Metro Hub', 'Business & Media'],
+        cats: ['catholic', 'boston-ny']
+      },
+      {
+        id: 'hofstra',
+        name: 'Hofstra University',
+        location: 'Hempstead, Long Island, NY',
+        source: 'current',
+        tier: 'SAFETY',
+        sticker: 78000,
+        baseMerit: 27000,
+        leadershipBonus: 2000,
+        satBonus: 3500,
+        scholarships: 'Provost / Dean’s Scholar Award ($24k–$33k/yr) + Lawrence Herbert School of Journalism/Media grants.',
+        tags: ['NYC Metro Hub', 'Journalism Powerhouse', 'Private'],
+        cats: ['boston-ny']
+      },
+      {
+        id: 'suffolk',
+        name: 'Suffolk University',
+        location: 'Downtown Boston (Beacon Hill), MA',
+        source: 'current',
+        tier: 'SAFETY',
+        sticker: 70000,
+        baseMerit: 19500,
+        leadershipBonus: 1500,
+        satBonus: 2500,
+        scholarships: 'Sawyer Business / Trustees Merit ($16k–$24k/yr). Right in downtown Boston next to the State House.',
+        tags: ['Downtown Boston', 'Business & Law', 'Urban'],
+        cats: ['boston-ny']
+      },
+      {
+        id: 'pace',
+        name: 'Pace University',
+        location: 'Lower Manhattan (Financial District), NY',
+        source: 'current',
+        tier: 'SAFETY',
+        sticker: 75000,
+        baseMerit: 23500,
+        leadershipBonus: 1500,
+        satBonus: 2500,
+        scholarships: 'Pace Incentive & Dean’s Merit ($20k–$29k/yr). Direct Wall Street & NYC media internship pipeline.',
+        tags: ['Lower Manhattan', 'Internships', 'Urban'],
+        cats: ['boston-ny']
+      },
+      {
+        id: 'franklin',
+        name: 'Franklin University Switzerland',
+        location: 'Lugano, Switzerland',
+        source: 'current',
+        tier: 'MATCH',
+        sticker: 70000,
+        baseMerit: 16000,
+        leadershipBonus: 2500,
+        satBonus: 2000,
+        scholarships: 'Ambassador Merit & Global Leadership Scholarship ($12k–$22k/yr). Dual US & Swiss accredited (FAFSA eligible).',
+        tags: ['Europe / Alps', 'Academic Travel', 'Small Cohort'],
+        cats: ['europe']
+      },
+      {
+        id: 'pennstate',
+        name: 'Penn State (University Park)',
+        location: 'State College, PA',
+        source: 'current',
+        tier: 'MATCH',
+        sticker: 59000,
+        baseMerit: 2500,
+        leadershipBonus: 0,
+        satBonus: 2500,
+        scholarships: 'Out-of-state public flagship. Limited OOS merit ($0–$5k Provost Award), though sticker is lower than privates.',
+        tags: ['Big Ten Flagship', 'Massive Alumni Network'],
+        cats: []
+      },
+      {
+        id: 'uw',
+        name: 'University of Washington',
+        location: 'Seattle, WA',
+        source: 'current',
+        tier: 'REACH',
+        sticker: 64000,
+        baseMerit: 4500,
+        leadershipBonus: 0,
+        satBonus: 2000,
+        scholarships: 'Purple & Gold OOS Scholarship ($3k–$8.5k/yr max). Does not participate in WUE; high out-of-state floor.',
+        tags: ['PNW Flagship', 'Seattle Urban', 'Public'],
+        cats: []
+      },
+      {
+        id: 'bentley',
+        name: 'Bentley University',
+        location: 'Waltham (Boston Metro), MA',
+        source: 'current',
+        tier: 'MATCH',
+        sticker: 83000,
+        baseMerit: 20000,
+        leadershipBonus: 2000,
+        satBonus: 3500,
+        scholarships: 'President’s Academic Merit ($15k–$25k) + Tomorrow’s Business Leaders Award. Elite ROI for finance/business.',
+        tags: ['Boston Metro', 'Finance & Business #1', 'Private'],
+        cats: ['boston-ny']
+      },
+      {
+        id: 'bc',
+        name: 'Boston College',
+        location: 'Chestnut Hill (Boston), MA',
+        source: 'current',
+        tier: 'REACH',
+        sticker: 90000,
+        baseMerit: 0,
+        leadershipBonus: 0,
+        satBonus: 0,
+        scholarships: 'Need-based aid only (CSS Profile). Only ~18 Gabelli Presidential Scholars per class receive merit aid.',
+        tags: ['Jesuit Flagship', 'Boston', 'Need-Only Aid'],
+        cats: ['catholic', 'boston-ny']
+      },
+      {
+        id: 'uchicago',
+        name: 'University of Chicago',
+        location: 'Chicago (Hyde Park), IL',
+        source: 'current',
+        tier: 'REACH',
+        sticker: 93000,
+        baseMerit: 0,
+        leadershipBonus: 0,
+        satBonus: 0,
+        scholarships: 'Sub-5% admit reach. Primarily need-based aid via CSS Profile (limited Odyssey/University merit awards).',
+        tags: ['Chicago', 'Elite Reach', 'Need-Only Aid'],
+        cats: []
+      },
+
+      // 8 RECOMMENDED HIGH-FIT & HIGH-MERIT ADDITIONS
+      {
+        id: 'depaul',
+        name: 'DePaul University (★ #1 Vincentian Fit)',
+        location: 'Chicago (Lincoln Park & Loop), IL',
+        source: 'recommended',
+        tier: 'MATCH',
+        sticker: 65000,
+        baseMerit: 24000,
+        leadershipBonus: 5000,
+        satBonus: 2000,
+        scholarships: 'Named after St. Vincent de Paul! Automatic Presidential/Dean’s Merit ($23k–$30k) + Vincentian Service Scholarship (massive fit for SVHS Chaplain).',
+        tags: ['Vincentian Catholic', 'Chicago', 'Journalism & Business'],
+        cats: ['catholic']
+      },
+      {
+        id: 'loyola',
+        name: 'Loyola University Chicago',
+        location: 'Chicago (Lakefront), IL',
+        source: 'recommended',
+        tier: 'MATCH',
+        sticker: 71000,
+        baseMerit: 26000,
+        leadershipBonus: 3500,
+        satBonus: 2500,
+        scholarships: 'Damen / Presidential Merit ($24k–$31k/yr) + Catholic Heritage Award for Catholic high school graduates.',
+        tags: ['Jesuit', 'Chicago Lakefront', 'D1 Hoops'],
+        cats: ['catholic']
+      },
+      {
+        id: 'gonzaga',
+        name: 'Gonzaga University',
+        location: 'Spokane, WA',
+        source: 'recommended',
+        tier: 'MATCH',
+        sticker: 72000,
+        baseMerit: 23000,
+        leadershipBonus: 4000,
+        satBonus: 2500,
+        scholarships: 'Automatic Regent/Trustee Merit ($20k–$28k/yr) + Ignatian Leaders Scholarship (tailor-made for ASB + Chaplain).',
+        tags: ['Jesuit', 'PNW', 'Elite Basketball Spirit'],
+        cats: ['catholic']
+      },
+      {
+        id: 'seattleu',
+        name: 'Seattle University',
+        location: 'Downtown Seattle (Capitol Hill), WA',
+        source: 'recommended',
+        tier: 'MATCH',
+        sticker: 73000,
+        baseMerit: 25000,
+        leadershipBonus: 3000,
+        satBonus: 2500,
+        scholarships: 'Campion / Trustee Merit ($22k–$30k/yr). Gives him downtown Seattle for ~$13k/yr LESS than out-of-state UW.',
+        tags: ['Jesuit', 'Downtown Seattle', 'Beats UW OOS Cost'],
+        cats: ['catholic']
+      },
+      {
+        id: 'ucd',
+        name: 'University College Dublin (UCD)',
+        location: 'Dublin, Ireland (On Common App)',
+        source: 'recommended',
+        tier: 'MATCH',
+        sticker: 43000,
+        baseMerit: 4500,
+        leadershipBonus: 0,
+        satBonus: 2500,
+        scholarships: 'Global Excellence & North American Merit (€3k–€10k). Pairs with Glasgow; English-speaking EU tech/finance hub.',
+        tags: ['Europe / Ireland', 'On Common App', 'Low Sticker'],
+        cats: ['europe']
+      },
+      {
+        id: 'ucdavis',
+        name: 'UC Davis / Cal Poly SLO (CA In-State)',
+        location: 'Northern / Central Coast California',
+        source: 'recommended',
+        tier: 'MATCH',
+        sticker: 41000,
+        baseMerit: 2000,
+        leadershipBonus: 0,
+        satBonus: 0,
+        scholarships: 'CA Resident In-State Tuition Leverage (~$41k total COA). Essential financial anchor to compare private offers against.',
+        tags: ['CA In-State Value', 'NorCal', 'Public Flagship'],
+        cats: []
+      },
+      {
+        id: 'providence',
+        name: 'Providence College',
+        location: 'Providence, RI (45m to Boston)',
+        source: 'recommended',
+        tier: 'MATCH',
+        sticker: 81000,
+        baseMerit: 21000,
+        leadershipBonus: 3000,
+        satBonus: 3000,
+        scholarships: 'St. Thomas Aquinas / Dean’s Merit ($18k–$28k/yr). Catholic Big East peer to Marquette, Xavier, and Seton Hall.',
+        tags: ['Catholic', 'Boston/New England', 'Big East Business'],
+        cats: ['catholic', 'boston-ny']
+      },
+      {
+        id: 'fordham',
+        name: 'Fordham University',
+        location: 'New York City (Rose Hill / Manhattan), NY',
+        source: 'recommended',
+        tier: 'MATCH',
+        sticker: 87000,
+        baseMerit: 23000,
+        leadershipBonus: 3500,
+        satBonus: 4000,
+        scholarships: 'Loyola / Dean’s Scholarship ($20k–$35k/yr). The Jesuit University of NYC—bridges the gap between BC and Pace/Seton Hall.',
+        tags: ['Jesuit', 'New York City', 'Media & Finance'],
+        cats: ['catholic', 'boston-ny']
+      }
+    ];
+
+    let activeSource = 'all';
+    let activeCategory = 'all';
+    let activeSort = 'net';
+    let starred = new Set(SCHOOLS.filter(s => s.source === 'current').map(s => s.id));
+
+    function computeSchool(s) {
+      const useLead = document.getElementById('toggle-leadership').checked;
+      const useSat = document.getElementById('toggle-sat').checked;
+      const discount = s.baseMerit + (useLead ? s.leadershipBonus : 0) + (useSat ? s.satBonus : 0);
+      const net = Math.max(18000, s.sticker - discount);
+      return { ...s, discount, net, net4yr: net * 4, saved4yr: discount * 4 };
+    }
+
+    function toggleStar(id) {
+      if (starred.has(id)) starred.delete(id);
+      else starred.add(id);
+      render();
+    }
+
+    function setSource(src, btn) {
+      activeSource = src;
+      document.querySelectorAll('#source-filters .filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      render();
+    }
+
+    function setCategory(cat, btn) {
+      activeCategory = cat;
+      document.querySelectorAll('#cat-filters .filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      render();
+    }
+
+    function setSort(srt, btn) {
+      activeSort = srt;
+      document.querySelectorAll('#sort-net, #sort-merit, #sort-name').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      render();
+    }
+
+    function fmt(n) {
+      return '$' + Math.round(n).toLocaleString();
+    }
+
+    function render() {
+      const budget = parseInt(document.getElementById('budget-slider').value, 10);
+      document.getElementById('budget-display').textContent = fmt(budget) + '/yr';
+
+      let list = SCHOOLS.map(computeSchool);
+
+      if (activeSource === 'current') list = list.filter(s => s.source === 'current');
+      else if (activeSource === 'recommended') list = list.filter(s => s.source === 'recommended');
+      else if (activeSource === 'starred') list = list.filter(s => starred.has(s.id));
+
+      if (activeCategory === 'under45') list = list.filter(s => s.net <= 45000);
+      else if (activeCategory !== 'all') list = list.filter(s => s.cats.includes(activeCategory));
+
+      if (activeSort === 'net') list.sort((a, b) => a.net - b.net);
+      else if (activeSort === 'merit') list.sort((a, b) => b.discount - a.discount);
+      else if (activeSort === 'name') list.sort((a, b) => a.name.localeCompare(b.name));
+
+      // Update KPIs based on currently displayed list
+      const count = list.length || 1;
+      const avgNet = list.reduce((acc, s) => acc + s.net, 0) / count;
+      const avgSticker = list.reduce((acc, s) => acc + s.sticker, 0) / count;
+      const avgSaved4 = list.reduce((acc, s) => acc + s.saved4yr, 0) / count;
+      const reaches = list.filter(s => s.tier === 'REACH').length;
+      const matches = list.filter(s => s.tier === 'MATCH').length;
+      const safeties = list.filter(s => s.tier === 'SAFETY').length;
+
+      document.getElementById('kpi-count').textContent = `${list.length} Schools`;
+      document.getElementById('kpi-tiers').textContent = `${reaches} Reach · ${matches} Match · ${safeties} Safety`;
+      document.getElementById('kpi-avg-net').textContent = fmt(avgNet) + '/yr';
+      document.getElementById('kpi-avg-sticker').textContent = `Down from ${fmt(avgSticker)} avg sticker`;
+      document.getElementById('kpi-4yr-net').textContent = fmt(avgNet * 4);
+      document.getElementById('kpi-4yr-saved').textContent = '+' + fmt(avgSaved4);
+
+      const container = document.getElementById('schools-container');
+      container.innerHTML = list.map(s => {
+        let bClass = 'budget-ok';
+        let bText = 'Within Target';
+        if (s.net > budget + 6000) { bClass = 'budget-over'; bText = 'Over Target'; }
+        else if (s.net > budget) { bClass = 'budget-stretch'; bText = 'Slight Stretch'; }
+
+        const isStarred = starred.has(s.id);
+        const srcBadge = s.source === 'recommended'
+          ? '<span style="color:#C084FC; font-weight:700; font-size:11px;">★ RECOMMENDED ADD</span>'
+          : '<span style="color:#60A5FA; font-weight:700; font-size:11px;">● ON COMMON APP</span>';
+
+        return `
+          <article class="school-card ${s.source === 'recommended' ? 'recommended' : 'current-list'}">
+            <div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                ${srcBadge}
+                <span class="tier-badge tier-${s.tier}">${s.tier}</span>
+              </div>
+              <div class="card-top">
+                <div>
+                  <div class="school-name">${s.name}</div>
+                  <div class="school-loc">${s.location}</div>
+                </div>
+              </div>
+
+              <div class="math-box">
+                <div class="math-row">
+                  <span>Annual Sticker COA (Tuition + Housing)</span>
+                  <span class="mono">${fmt(s.sticker)}/yr</span>
+                </div>
+                <div class="math-row discount">
+                  <span>Est. Merit & Catholic/Leadership Aid</span>
+                  <span class="mono">-${fmt(s.discount)}/yr</span>
+                </div>
+                <div class="math-row net-total">
+                  <span>Est. Net Cost <span class="budget-tag ${bClass}">${bText}</span></span>
+                  <span class="mono">${fmt(s.net)}/yr</span>
+                </div>
+                <div class="math-row" style="padding-top:6px; font-size:12px;">
+                  <span>Projected 4-Year Total Out-of-Pocket</span>
+                  <span class="mono" style="color:#E2E8F0; font-weight:600;">${fmt(s.net4yr)}</span>
+                </div>
+              </div>
+
+              <p class="scholarship-info">
+                <strong>Scholarship Path:</strong> ${s.scholarships}
+              </p>
+            </div>
+
+            <div class="vibe-tags">
+              <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                ${s.tags.map(t => `<span class="tag-chip">${t}</span>`).join('')}
+              </div>
+              <button class="star-btn ${isStarred ? 'starred' : ''}" onclick="toggleStar('${s.id}')">
+                ${isStarred ? '★ In My List' : '☆ Add'}
+              </button>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    render();
+  </script>
+</body>
+</html>
